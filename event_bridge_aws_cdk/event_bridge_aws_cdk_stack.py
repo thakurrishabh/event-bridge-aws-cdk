@@ -19,7 +19,7 @@ class EventBridgeAwsCdkStack(cdk.Stack):
     def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        queue = sqs.Queue(self, "Queue")
+        queue = sqs.Queue(self, "Queue", queue_name = "Events_DLQ")
 
         fn = lambda_.Function(self, "ETL_job_func",
             runtime=lambda_.Runtime.PYTHON_3_8,
@@ -28,8 +28,12 @@ class EventBridgeAwsCdkStack(cdk.Stack):
             dead_letter_queue=queue
         )
 
-        
-        fn.add_event_source(SqsEventSource(queue))
+        fn_dlq_process = lambda_.Function(self, "DLQ_Process_func",
+            runtime=lambda_.Runtime.PYTHON_3_8,
+            handler="lambda_function.handler",
+            code=lambda_.Code.asset('lambda_dlq')
+        )
+
 
         rule = events.Rule(
             self, "Rule",
@@ -44,6 +48,16 @@ class EventBridgeAwsCdkStack(cdk.Stack):
             max_event_age=cdk.Duration.hours(2), # Otional: set the maxEventAge retry policy
             retry_attempts=2
         ))
+
+        rule_dlq = events.Rule(
+            self, "Rule_DLQ",
+            schedule=events.Schedule.cron(
+                minute='0',
+                hour='12')
+        )
+
+
+        rule_dlq.add_target(targets.LambdaFunction(fn_dlq_process))
 
 
         log_group = logs.LogGroup(self, "EventsLogGroup",
