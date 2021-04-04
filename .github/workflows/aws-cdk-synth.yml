@@ -37,20 +37,38 @@ jobs:
 
       - name: "Run cdk synth"
         id: synth
-        run: |
-              cdk synth --output=./templates
-              echo "##[set-output name=stdoutplan;]$(cat ./templates/EventBridgeAwsCdkStack.template.json)"
+        run: cdk synth
 
-      - name: "Run - CDK synth Comment"
-        uses: actions/github-script@0.9.0
+      - name: Run CDK diff
+        run: node_modules/.bin/cdk diff -c aws-cdk:enableDiffNoFail=true --no-color --app cdk.out "*" 2>&1 | tee cdk.log
+
+      - name: Add comment to PR 
         env:
-          STDOUT: "```${{ steps.synth.outputs.stdoutplan }}```"
-        with:
-          github-token: ${{ secrets.GIT_PAT }}
-          script: |
-            github.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: process.env.STDOUT
-            })
+          URL: ${{ github.event.pull_request.comments_url }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+              jq --raw-input --slurp '{body: .}' cdk.log > cdk.json
+              curl \
+                -H "Content-Type: application/json" \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -d @cdk.json \
+                -X POST \
+                $URL
+
+      #   run: |
+      #         cdk synth --output=./templates
+      #         echo "##[set-output name=stdoutplan;]$(<./templates/EventBridgeAwsCdkStack.template.json)"
+      #
+      # - name: "Run - CDK synth Comment"
+      #   uses: actions/github-script@0.9.0
+      #   env:
+      #     STDOUT: "```${{ steps.synth.outputs.stdoutplan }}```"
+      #   with:
+      #     github-token: ${{ secrets.GIT_PAT }}
+      #     script: |
+      #       github.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body: process.env.STDOUT
+      #       })
