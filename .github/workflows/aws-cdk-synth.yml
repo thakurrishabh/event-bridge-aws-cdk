@@ -40,9 +40,9 @@ jobs:
         run: cdk synth
 
       - name: Run CDK diff
-        run: node_modules/.bin/cdk diff -c aws-cdk:enableDiffNoFail=true --no-color --app cdk.out "*" 2>&1 | tee cdk.log
+        run: cdk diff -c aws-cdk:enableDiffNoFail=true --no-color --app cdk.out "*" 2>&1 | tee cdk.log
 
-      - name: Add comment to PR 
+      - name: Add comment to PR
         env:
           URL: ${{ github.event.pull_request.comments_url }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
