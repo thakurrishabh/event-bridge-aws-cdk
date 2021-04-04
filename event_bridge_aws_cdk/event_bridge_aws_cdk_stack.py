@@ -19,7 +19,7 @@ class EventBridgeAwsCdkStack(cdk.Stack):
     def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        queue = sqs.DeadLetterQueue(self, 2, sqs.Queue(self, "Queue", queue_name = "Events_DLQ"))
+        queue = sqs.Queue(self, "Queue", queue_name = "Events_DLQ")
 
         fn = lambda_.Function(self, "ETL_job_func",
             runtime=lambda_.Runtime.PYTHON_3_8,
