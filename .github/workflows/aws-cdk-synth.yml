@@ -37,7 +37,9 @@ jobs:
 
       - name: "Run cdk synth"
         id: synth
-        run: cdk synth
+        run: |
+              cdk synth --output=~/templates
+              cat ~/templates/cdk.out
 
       - name: "Run - CDK synth Comment"
         uses: actions/github-script@0.9.0
