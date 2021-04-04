@@ -37,10 +37,7 @@ jobs:
 
       - name: "Run cdk synth"
         id: synth
-        run: cdk synth --no-color --app cdk.out "*" 2>&1 | tee cdk.log
-
-      # - name: Run CDK diff
-      #   run: cdk diff -c aws-cdk:enableDiffNoFail=true --no-color --app cdk.out "*" 2>&1 | tee cdk.log
+        run: cdk synth --json EventBridgeAwsCdkStack 2>&1 | tee cdk.log
 
       - name: Add comment to PR
         env:
