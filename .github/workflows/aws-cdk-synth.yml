@@ -39,7 +39,7 @@ jobs:
         id: synth
         run: cdk synth --json EventBridgeAwsCdkStack | grep Type 2>&1 | tee cdk.log
 
-      - name: Add comment to PR
+      - name: Add synth comment to PR
         env:
           URL: ${{ github.event.pull_request.comments_url }}
           GITHUB_TOKEN: ${{ secrets.GIT_PAT }}
@@ -49,6 +49,22 @@ jobs:
                 -H "Content-Type: application/json" \
                 -H "Authorization: token $GITHUB_TOKEN" \
                 -d @cdk.json \
+                -X POST \
+                $URL
+
+      - name: Run CDK diff
+        run: cdk diff -c aws-cdk:enableDiffNoFail=true --no-color --app cdk.out "*" 2>&1 | tee cdk1.log
+
+      - name: Add diff comment to PR
+        env:
+          URL: ${{ github.event.pull_request.comments_url }}
+          GITHUB_TOKEN: ${{ secrets.GIT_PAT }}
+        run: |
+              jq --raw-input --slurp '{body: .}' cdk1.log > cdk1.json
+              curl \
+                -H "Content-Type: application/json" \
+                -H "Authorization: token $GITHUB_TOKEN" \
+                -d @cdk1.json \
                 -X POST \
                 $URL
 
