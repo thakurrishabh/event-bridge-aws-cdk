@@ -11,17 +11,25 @@ import aws_cdk.aws_lambda as lambda_
 import aws_cdk.aws_events as events
 import aws_cdk.aws_sqs as sqs
 import aws_cdk.aws_events_targets as targets
+import aws_cdk.aws_logs as logs
+from aws_cdk.aws_lambda_event_sources import SqsEventSource
 
 class EventBridgeAwsCdkStack(cdk.Stack):
 
     def __init__(self, scope: cdk.Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
+        queue = sqs.Queue(self, "Queue")
+
         fn = lambda_.Function(self, "ETL_job_func",
             runtime=lambda_.Runtime.PYTHON_3_8,
             handler="lambda_function.handler",
-            code=lambda_.Code.asset('lambda')
+            code=lambda_.Code.asset('lambda'),
+            dead_letter_queue=queue
         )
+
+        
+        fn.add_event_source(SqsEventSource(queue))
 
         rule = events.Rule(
             self, "Rule",
@@ -30,10 +38,17 @@ class EventBridgeAwsCdkStack(cdk.Stack):
                 hour='11')
         )
 
-        queue = sqs.Queue(self, "Queue")
 
         rule.add_target(targets.LambdaFunction(fn,
             dead_letter_queue=queue, # Optional: add a dead letter queue
             max_event_age=cdk.Duration.hours(2), # Otional: set the maxEventAge retry policy
             retry_attempts=2
         ))
+
+
+        log_group = logs.LogGroup(self, "EventsLogGroup",
+            log_group_name="EventsLogGroup"
+        )
+
+
+        rule.add_target(targets.CloudWatchLogGroup(log_group))

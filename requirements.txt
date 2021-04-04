@@ -2,3 +2,5 @@ aws_cdk.aws_lambda
 aws_cdk.aws_events
 aws_cdk.aws_sqs
 aws_cdk.aws_events_targets
+aws_logs
+aws_lambda_event_sources
