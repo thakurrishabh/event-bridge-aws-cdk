@@ -37,7 +37,7 @@ jobs:
 
       - name: "Run cdk synth"
         id: synth
-        run: cdk synth --json EventBridgeAwsCdkStack 2>&1 | tee cdk.log
+        run: cdk synth --json EventBridgeAwsCdkStack | grep Type 2>&1 | tee cdk.log
 
       - name: Add comment to PR
         env:
