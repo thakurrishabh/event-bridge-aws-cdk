@@ -28,8 +28,15 @@ jobs:
       - name: "Installing dependencies from requirements.txt"
         run: python -m pip install -r requirements.txt
 
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: "Installing AWS CDK"
+        run: npm install -g aws-cdk
+
       - name: "Run CDK bootstrap"
         run: cdk bootstrap aws://515184503796/us-east-1
 
       - name: "Run cdk deploy"
-        run: cdk deploy
+        run: cdk deploy --require-approval never
