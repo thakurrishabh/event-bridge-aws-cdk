@@ -1,0 +1,7 @@
+setup github actions for ci/cd
+setup github secrets
+push the app except venv
+install requirements.txt on the ci/cd machine
+cdk synth and generate comment
+cdk bootstrap
+cdk deploy

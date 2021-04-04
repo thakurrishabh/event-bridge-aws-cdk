@@ -7,6 +7,9 @@ from aws_cdk import core as cdk
 # the CDK's core module.  The following line also imports it as `core` for use
 # with examples from the CDK Developer's Guide, which are in the process of
 # being updated to use `cdk`.  You may delete this import if you don't need it.
+#!/home/rishabh/MyDrive/Softwares/python3.9
+
+
 from aws_cdk import core
 
 from event_bridge_aws_cdk.event_bridge_aws_cdk_stack import EventBridgeAwsCdkStack
@@ -26,7 +29,7 @@ EventBridgeAwsCdkStack(app, "EventBridgeAwsCdkStack",
     # Uncomment the next line if you know exactly what Account and Region you
     # want to deploy the stack to. */
 
-    #env=core.Environment(account='123456789012', region='us-east-1'),
+    env=core.Environment(account='515184503796', region='us-east-1'),
 
     # For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html
     )

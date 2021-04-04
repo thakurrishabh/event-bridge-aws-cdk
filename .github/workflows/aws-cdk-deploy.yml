@@ -1,0 +1,35 @@
+name: "CDK Deploy"
+
+# Trigger when commits are pushed to the master branch
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  terraform-plan:
+    name: "CDK Deploy"
+    runs-on: ubuntu-latest
+    steps:
+      # Checkout the code
+      # Marketplace: https://github.com/marketplace/actions/checkout
+      - name: "Setup - Checkout"
+        uses: actions/checkout@v2.1.0
+
+      # Provides AWS credentials to AWS CDK
+      # By default, CDK checks the home directory for a .aws folder with a credential file
+      # Documentation: https://docs.aws.amazon.com/ses/latest/DeveloperGuide/create-shared-credentials-file.html
+      - name: "Setup - Build AWS Credentials"
+        run: |
+          mkdir -p ~/.aws
+          echo "[default]" > ~/.aws/credentials
+          echo "aws_access_key_id = ${{ secrets.IA }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key = ${{ secrets.KA }}" >> ~/.aws/credentials
+
+      - name: "Installing dependencies from requirements.txt"
+        run: python -m pip install -r requirements.txt
+
+      - name: "Run CDK bootstrap"
+        run: cdk bootstrap aws://515184503796/us-east-1
+
+      - name: "Run cdk deploy"
+        run: cdk deploy
