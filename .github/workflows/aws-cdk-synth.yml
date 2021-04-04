@@ -37,15 +37,15 @@ jobs:
 
       - name: "Run cdk synth"
         id: synth
-        run: cdk synth
+        run: cdk synth --no-color --app cdk.out "*" 2>&1 | tee cdk.log
 
-      - name: Run CDK diff
-        run: cdk diff -c aws-cdk:enableDiffNoFail=true --no-color --app cdk.out "*" 2>&1 | tee cdk.log
+      # - name: Run CDK diff
+      #   run: cdk diff -c aws-cdk:enableDiffNoFail=true --no-color --app cdk.out "*" 2>&1 | tee cdk.log
 
       - name: Add comment to PR
         env:
           URL: ${{ github.event.pull_request.comments_url }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GIT_PAT }}
         run: |
               jq --raw-input --slurp '{body: .}' cdk.log > cdk.json
               curl \
